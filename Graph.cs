@@ -78,6 +78,7 @@ namespace GraphWorker
 
         public void ShowAdjacencyMatrix()
         {
+            Console.WriteLine();
             int[,] adjacencyMatrix = GetAdjacencyMatrix();
 
             for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
@@ -88,6 +89,7 @@ namespace GraphWorker
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine();
         }
 
         public bool IsIsomorphicTo(Graph second)
@@ -140,13 +142,13 @@ namespace GraphWorker
 
             for (int x = 0; x < permutation.Count; x++)
             {
-                int[] column = GetRow(fromMatrix, permutation[x]);
+                int[] row = GetRow(fromMatrix, permutation[x]);
 
                 for (int i = 0; i < toMatrix.GetLength(0); i++)
                 {
                     for (int j = 0; j < toMatrix.GetLength(1); j++)
                     {
-                        if (i == x) toMatrix[i, j] = column[j];
+                        if (i == x) toMatrix[i, j] = row[j];
                     }
                 }
             }
@@ -251,15 +253,26 @@ namespace GraphWorker
 
             if (existing) stringBuilder += "complete ";
 
-
             if (Edges.Count == 0) stringBuilder += "null ";
             else if (Edges.All(x => x.isDirected)) stringBuilder += "directed ";
             else if (Edges.Any(x => x.isDirected)) stringBuilder += "mixed ";
             else stringBuilder += "simple ";
 
-            if (Edges.Any(x => x.start == x.end)) stringBuilder += "multigraph";
-            else stringBuilder += "graph";
+            List<Edge> comparerEdges = new List<Edge>(Edges);
 
+            bool isMultigraph = false;
+
+            foreach(Edge edge in Edges)
+            {
+                foreach(Edge comparerEdge in comparerEdges)
+                {
+                    if (edge.start == comparerEdge.end && edge.end == comparerEdge.start) isMultigraph = true;
+                }
+            }
+
+            if (isMultigraph) stringBuilder += "multigraph";
+            else if (Edges.Any(x => x.start == x.end)) stringBuilder += "multigraph";
+            else stringBuilder += "graph";
 
             return stringBuilder;
         }

@@ -12,8 +12,8 @@
 			graphs[0].AddNode(20);
 			graphs[0].AddNode(20);
 			graphs[0].AddEdge(0, 1, true);
-			graphs[0].AddEdge(1, 2, false);
-			graphs[0].AddEdge(0, 2, false);
+			graphs[0].AddEdge(1, 2, true);
+			graphs[0].AddEdge(0, 2, true);
 
 			Console.WriteLine(graphs[0].GetGraphType());
 
@@ -41,10 +41,9 @@
 
 		static void Help()
 		{
-
-			Console.WriteLine("\nadd\n\tgraph {name}\n\tnode {graphName} {Value}\n\tedge {graphName} {from} {to} {is directed (0 or 1)}\n" +
+			Console.WriteLine("\nadd\n\tgraph {name}\n\tnode {graphName} {Value}\n\tedge {graphName} {from} {to} {is directed (false or true)}\n" +
 				"delete\n\tgraph {name}\n\tnode {graphName} {position}\n\tedge {graphName} {from} {to}\n" +
-				"show\n\tmatrix {graphName}\n\tgraphs\n\tedges {graphName}\n\tnodes {graphName}\n\tgraphType {graphName}");
+				"show\n\tmatrix {graphName}\n\tgraphs\n\tedges {graphName}\n\tnodes {graphName}\n\tgraphType {graphName}\n");
 		}
 
 		private static List<Graph> Add(List<Graph> graphs, string[] input)
@@ -57,23 +56,23 @@
 				{
 					case "graph":
 						{
-							if (graphs.Any(x => x.Label == input[2])) { Console.WriteLine("This name is alredy taken"); break; }
+							if (graphs.Any(x => x.Label == input[2])) { Console.WriteLine("\nThis name is alredy taken\n"); break; }
 							graphs.Add(new Graph(input[2]));
-							Console.WriteLine($"Added graph {input[2]}");
+							Console.WriteLine($"\nAdded graph {input[2]}\n");
 							break;
 						}
 
-					case "node": graphs.Find(x => x.Label == input[2])!.AddNode(Convert.ToInt32(input[3])); Console.WriteLine($"Added node to {input[2]} with value {input[3]}"); break;
-					case "edge": graphs.Find(x => x.Label == input[2])!.AddEdge(Convert.ToInt32(input[3]) - 1, Convert.ToInt32(input[4]) - 1, Convert.ToBoolean(input[5])); Console.WriteLine($"Added edge to {input[2]} from {input[3]} to {input[4]}"); break;
+					case "node": graphs.Find(x => x.Label == input[2])!.AddNode(Convert.ToInt32(input[3])); Console.WriteLine($"\nAdded node to {input[2]} with value {input[3]}\n"); break;
+					case "edge": graphs.Find(x => x.Label == input[2])!.AddEdge(Convert.ToInt32(input[3]) - 1, Convert.ToInt32(input[4]) - 1, Convert.ToBoolean(input[5])); Console.WriteLine($"\nAdded edge to {input[2]} from {input[3]} to {input[4]}\n"); break;
 				}
 			}
 			catch (IndexOutOfRangeException)
 			{
-				Console.WriteLine("Some index is out of range");
+				Console.WriteLine("\nSome index is out of range\n");
 			}
 			catch
 			{
-				Console.WriteLine("Something went wrong, please re-check your input!");
+				Console.WriteLine("\nSomething went wrong, please re-check your input!\n");
 				Help();
 			}
 
@@ -90,22 +89,22 @@
 				{
 					case "graph":
 						{
-							if (!graphs.Any(x => x.Label == input[2])) { Console.WriteLine("This name doesn't exist"); break; }
+							if (!graphs.Any(x => x.Label == input[2])) { Console.WriteLine("\nThis name doesn't exist\n"); break; }
 							graphs.RemoveAt(graphs.FindIndex(x => x.Label == input[2]));
-							Console.WriteLine($"Deleted graph {input[2]}");
+							Console.WriteLine($"\nDeleted graph {input[2]}\n");
 							break;
 						}
-					case "node": graphs.Find(x => x.Label == input[2])!.RemoveNode(Convert.ToInt32(input[3]) - 1); Console.WriteLine($"Deleted node in {input[2]}"); break;
-					case "edge": graphs.Find(x => x.Label == input[2])!.RemoveEdge(Convert.ToInt32(input[3]) - 1, Convert.ToInt32(input[4]) - 1); Console.WriteLine($"Deleted edge in {input[2]} from {input[3]}, to {input[4]}"); break;
+					case "node": graphs.Find(x => x.Label == input[2])!.RemoveNode(Convert.ToInt32(input[3]) - 1); Console.WriteLine($"/nDeleted node in {input[2]}\n"); break;
+					case "edge": graphs.Find(x => x.Label == input[2])!.RemoveEdge(Convert.ToInt32(input[3]) - 1, Convert.ToInt32(input[4]) - 1); Console.WriteLine($"\nDeleted edge in {input[2]} from {input[3]}, to {input[4]}\n"); break;
 				}
 			}
 			catch (IndexOutOfRangeException)
 			{
-				Console.WriteLine("Some index is out of range");
+				Console.WriteLine("\nSome index is out of range\n");
 			}
 			catch
 			{
-				Console.WriteLine("Something went wrong, please re-check your input!");
+				Console.WriteLine("\nSomething went wrong, please re-check your input!\n");
 				Help();
 			}
 
@@ -129,7 +128,7 @@
 			}
 			catch
 			{
-				Console.WriteLine("Something went wrong, please re-check your input!");
+				Console.WriteLine("\nSomething went wrong, please re-check your input!\n");
 				Help();
 			}
 		}
