@@ -30,7 +30,15 @@ namespace GraphWorker
         public void RemoveNode(int position)
         {
             if (position >= 0 && position < Nodes.Count)
+            {
+                
+                List<Edge> edgesToRemove = Edges.FindAll(x=> x.fromNode.Equals(Nodes[position]) || x.toNode.Equals(Nodes[position]));
+                foreach (Edge e in edgesToRemove)
+                {
+                    Edges.Remove(e);
+                }
                 Nodes.RemoveAt(position);
+            }
 
             else throw new IndexOutOfRangeException();
         }
@@ -46,7 +54,7 @@ namespace GraphWorker
         {
             foreach (Node node in Nodes)
             {
-                Console.WriteLine(Label + " has a node with value " + node.Value + " and ID " + node.ID);
+                Console.WriteLine(Label + " has a node with value " + node.Value);
             }
         }
 
@@ -54,7 +62,7 @@ namespace GraphWorker
         {
             foreach (Edge edge in Edges)
             {
-                Console.WriteLine(Label + " has edge with start in " + (Nodes.IndexOf(Nodes.Find(x => x.ID == edge.startNodeID)) + 1) + " and end on " + (Nodes.IndexOf(Nodes.Find(x => x.ID == edge.endNodeID)) + 1));
+                Console.WriteLine(Label + " has edge with start in " + (Nodes.IndexOf(edge.fromNode) + 1) + " and end on " + (Nodes.IndexOf(edge.toNode) + 1));
             }
         }
 
@@ -66,7 +74,7 @@ namespace GraphWorker
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    if (Edges.Any(x => Nodes.IndexOf(Nodes.Find(y => y.ID == x.startNodeID)) == i && Nodes.IndexOf(Nodes.Find(y => y.ID == x.endNodeID)) == j) && Edges.Count != 0)
+                    if (Edges.Any(x => Nodes.IndexOf(x.fromNode) == i && Nodes.IndexOf(x.toNode) == j) && Edges.Count != 0)
                     {
                         adjacencyMatrix[i, j] = 1;
                         adjacencyMatrix[j, i] = 1;
@@ -242,9 +250,9 @@ namespace GraphWorker
 
             foreach (Edge comparerEdge in possibleEdges)
             {
-                if (!Edges.Contains(new Edge(comparerEdge.startNodeID, comparerEdge.endNodeID)) || Edges.Contains(new Edge(comparerEdge.endNodeID, comparerEdge.startNodeID)))
+                if (!Edges.Contains(new Edge(comparerEdge.fromNode, comparerEdge.toNode)) || Edges.Contains(new Edge(comparerEdge.toNode, comparerEdge.fromNode)))
                 {
-                    if (!Edges.Contains(new Edge(comparerEdge.startNodeID, comparerEdge.endNodeID, true)) || Edges.Contains(new Edge(comparerEdge.endNodeID, comparerEdge.startNodeID, true)))
+                    if (!Edges.Contains(new Edge(comparerEdge.fromNode, comparerEdge.toNode, true)) || Edges.Contains(new Edge(comparerEdge.toNode, comparerEdge.fromNode, true)))
                     {
                         existing = false;
                         break;
@@ -259,23 +267,24 @@ namespace GraphWorker
             else if (Edges.Any(x => x.isDirected)) stringBuilder += "mixed ";
             else stringBuilder += "simple ";
 
-            List<Edge> comparerEdges = new(Edges);
-
             bool isMultigraph = false;
 
             foreach (Edge edge in Edges)
             {
-                foreach (Edge comparerEdge in comparerEdges)
+                if (isMultigraph) break;
+
+                foreach (Edge comparerEdge in Edges)
                 {
-                    if (edge.startNodeID == comparerEdge.endNodeID && edge.endNodeID == comparerEdge.startNodeID)
+                    if (edge.fromNode.Equals(comparerEdge.toNode) && edge.toNode.Equals(comparerEdge.fromNode))
                     {
                         isMultigraph = true;
+                        break;
                     }
                 }
             }
 
             if (isMultigraph) stringBuilder += "multigraph";
-            else if (Edges.Any(x => x.startNodeID.Equals(x.endNodeID))) stringBuilder += "multigraph";
+            else if (Edges.Any(x => x.fromNode.Equals(x.toNode))) stringBuilder += "multigraph";
             else stringBuilder += "graph";
 
             return stringBuilder;
@@ -305,9 +314,12 @@ namespace GraphWorker
 
     public struct Node
     {
-        public int ID;
+
+        private int ID;
         public int Value;
-        readonly Random rnd = new();
+
+        Random rnd = new();
+
         public Node(int value)
         {
             Value = value;
@@ -317,31 +329,20 @@ namespace GraphWorker
 
     public struct Edge
     {
-        public int startNodeID;
-        public int endNodeID;
+        public Node fromNode;
+        public Node toNode;
         public bool isDirected = false;
 
-        public Edge(Node start, Node end, bool directed)
+        public Edge(Node from, Node to, bool directed)
         {
-            startNodeID = start.ID;
-            endNodeID = end.ID;
+            fromNode = from;
+            toNode = to;
             isDirected = directed;
         }
-        public Edge(int startID, int endID, bool directed)
+        public Edge(Node from, Node to)
         {
-            startNodeID = startID;
-            endNodeID = endID;
-            isDirected = directed;
-        }
-        public Edge(Node start, Node end)
-        {
-            startNodeID = start.ID;
-            endNodeID = end.ID;
-        }
-        public Edge(int startID, int endID)
-        {
-            startNodeID = startID;
-            endNodeID = endID;
+            fromNode = from;
+            toNode = to;
         }
     }
 }

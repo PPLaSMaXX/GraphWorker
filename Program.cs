@@ -11,7 +11,7 @@
             graphs[0].AddNode(1);
             graphs[0].AddNode(1);
             graphs[0].AddNode(1);
-            graphs[0].AddEdge(1, 1, false);
+            graphs[0].AddEdge(0, 0, false);
 
             Console.WriteLine(graphs[0].GetGraphType());
 
