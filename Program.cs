@@ -6,15 +6,6 @@
         {
             List<Graph> graphs = new();
 
-            graphs.Add(new Graph("baba"));
-
-            graphs[0].AddNode(1);
-            graphs[0].AddNode(1);
-            graphs[0].AddNode(1);
-            graphs[0].AddEdge(0, 0, false);
-
-            Console.WriteLine(graphs[0].GetGraphType());
-
             while (true)
             {
                 string? input = Console.ReadLine();
@@ -47,13 +38,14 @@
                 "delete\n\t" +
                     "graph {name}\n\t" +
                     "node {graphName} {position}\n\t" +
-                    "edge {graphName} {from} {to}\n" +
+                    "edge {graphName} {position}\n" +
                 "show\n\t" +
                     "matrix {graphName}\n\t" +
                     "graphs\n\t" +
                     "edges {graphName}\n\t" +
                     "nodes {graphName}\n\t" +
-                    "graphType {graphName}\n");
+                    "graphType {graphName}\n\t" +
+                    "isIsomophic {graphName} {graphName}\n");
         }
 
         private static List<Graph> Add(List<Graph> graphs, string[] input)
@@ -99,13 +91,20 @@
                 {
                     case "graph":
                         {
-                            if (!graphs.Any(x => x.Label == input[2])) { Console.WriteLine("\nThis name doesn't exist\n"); break; }
-                            graphs.RemoveAt(graphs.FindIndex(x => x.Label == input[2]));
-                            Console.WriteLine($"\nDeleted graph {input[2]}\n");
+                            if (!graphs.Any(x => x.Label == input[2]))
+                            {
+                                Console.WriteLine("\nThis name doesn't exist\n");
+                                break;
+                            }
+                            else
+                            {
+                                graphs.RemoveAt(graphs.FindIndex(x => x.Label == input[2]));
+                                Console.WriteLine($"\nDeleted graph {input[2]}\n");
+                            }
                             break;
                         }
-                    case "node": graphs.Find(x => x.Label == input[2])!.RemoveNode(Convert.ToInt32(input[3]) - 1); Console.WriteLine($"/nDeleted node in {input[2]}\n"); break;
-                    case "edge": graphs.Find(x => x.Label == input[2])!.RemoveEdge(Convert.ToInt32(input[3]) - 1, Convert.ToInt32(input[4]) - 1); Console.WriteLine($"\nDeleted edge in {input[2]} from {input[3]}, to {input[4]}\n"); break;
+                    case "node": graphs.Find(x => x.Label == input[2])!.RemoveNode(Convert.ToInt32(input[3]) - 1); Console.WriteLine($"\nDeleted node in {input[2]}\n"); break;
+                    case "edge": graphs.Find(x => x.Label == input[2])!.RemoveEdge(Convert.ToInt32(input[3]) - 1); Console.WriteLine($"\nDeleted edge in {input[2]}\n"); break;
                 }
             }
             catch (IndexOutOfRangeException)
@@ -125,6 +124,8 @@
         {
             if (input == null || graphs == null) return;
 
+            Console.WriteLine();
+
             try
             {
                 switch (input[1])
@@ -133,13 +134,18 @@
                     case "graphs": graphs.ForEach(x => Console.WriteLine(x.Label)); break;
                     case "nodes": graphs.Find(x => x.Label == input[2])!.ShowNodes(); break;
                     case "edges": graphs.Find(x => x.Label == input[2])!.ShowEdges(); break;
-                    case "graphType": graphs.Find(x => x.Label == input[2])!.GetGraphType(); break;
+                    case "graphType": Console.WriteLine(graphs.Find(x => x.Label == input[2])!.GetGraphType()); break;
+                    case "isIsomorphic": Console.WriteLine(graphs.Find(x => x.Label == input[2])!.IsIsomorphicTo(graphs.Find(x => x.Label == input[3])!)); break;
                 }
             }
             catch
             {
                 Console.WriteLine("\nSomething went wrong, please re-check your input!\n");
                 Help();
+            }
+            finally
+            {
+                Console.WriteLine();
             }
         }
     }

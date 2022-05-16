@@ -1,12 +1,11 @@
-﻿
-namespace GraphWorker
+﻿namespace GraphWorker
 {
     public class Graph
     {
         public string Label;
 
-        private readonly List<Node> Nodes = new();
-        private readonly List<Edge> Edges = new();
+        public List<Node> Nodes = new();
+        public List<Edge> Edges = new();
 
         public Graph(string label)
         {
@@ -31,8 +30,8 @@ namespace GraphWorker
         {
             if (position >= 0 && position < Nodes.Count)
             {
-                
-                List<Edge> edgesToRemove = Edges.FindAll(x=> x.fromNode.Equals(Nodes[position]) || x.toNode.Equals(Nodes[position]));
+
+                List<Edge> edgesToRemove = Edges.FindAll(x => x.fromNode == Nodes[position] || x.toNode == Nodes[position]);
                 foreach (Edge e in edgesToRemove)
                 {
                     Edges.Remove(e);
@@ -43,10 +42,12 @@ namespace GraphWorker
             else throw new IndexOutOfRangeException();
         }
 
-        public void RemoveEdge(int start, int end)
+        public void RemoveEdge(int position)
         {
-            if (start >= 0 && start < Nodes.Count && end < Nodes.Count && end >= 0)
-                Edges.Remove(new Edge(Nodes[start], Nodes[end]));
+            if (position >= 0 && position < Edges.Count)
+            {
+                Edges.RemoveAt(position);
+            }
             else throw new IndexOutOfRangeException();
         }
 
@@ -62,7 +63,7 @@ namespace GraphWorker
         {
             foreach (Edge edge in Edges)
             {
-                Console.WriteLine(Label + " has edge with start in " + (Nodes.IndexOf(edge.fromNode) + 1) + " and end on " + (Nodes.IndexOf(edge.toNode) + 1));
+                Console.WriteLine(Label + " has edge with start in " + (Nodes.IndexOf(edge.fromNode) + 1) + " and end in " + (Nodes.IndexOf(edge.toNode) + 1));
             }
         }
 
@@ -125,7 +126,7 @@ namespace GraphWorker
             return false;
         }
 
-        public static int[,] PutColumns(int[,] fromMatrix, List<int> permutation)
+        public int[,] PutColumns(int[,] fromMatrix, List<int> permutation)
         {
             int[,] toMatrix = (int[,])fromMatrix.Clone();
 
@@ -145,7 +146,7 @@ namespace GraphWorker
             return toMatrix;
         }
 
-        public static int[,] PutRows(int[,] fromMatrix, List<int> permutation)
+        public int[,] PutRows(int[,] fromMatrix, List<int> permutation)
         {
             int[,] toMatrix = (int[,])fromMatrix.Clone();
 
@@ -164,7 +165,7 @@ namespace GraphWorker
             return toMatrix;
         }
 
-        public static List<List<int>> GetAllPermutations(int num)
+        public List<List<int>> GetAllPermutations(int num)
         {
             List<int> adresses = new();
 
@@ -173,16 +174,12 @@ namespace GraphWorker
                 adresses.Add(i);
             }
 
-            return Permute(adresses.ToArray());
+            List<List<int>> list = new();
+
+            return DoPermute(adresses.ToArray(), 0, adresses.ToArray().Length - 1, list);
         }
 
-        static List<List<int>> Permute(int[] nums)
-        {
-            var list = new List<List<int>>();
-            return DoPermute(nums, 0, nums.Length - 1, list);
-        }
-
-        static List<List<int>> DoPermute(int[] nums, int start, int end, List<List<int>> list)
+        List<List<int>> DoPermute(int[] nums, int start, int end, List<List<int>> list)
         {
             if (start == end)
             {
@@ -192,35 +189,30 @@ namespace GraphWorker
             {
                 for (var i = start; i <= end; i++)
                 {
-                    Swap(ref nums[start], ref nums[i]);
+                    (nums[start], nums[i]) = (nums[i], nums[start]);
                     DoPermute(nums, start + 1, end, list);
-                    Swap(ref nums[start], ref nums[i]);
+                    (nums[start], nums[i]) = (nums[i], nums[start]);
                 }
             }
 
             return list;
         }
 
-        static void Swap(ref int a, ref int b)
-        {
-            (b, a) = (a, b);
-        }
-
-        public static int[] GetColumn(int[,] matrix, int columnNumber)
+        public int[] GetColumn(int[,] matrix, int columnNumber)
         {
             return Enumerable.Range(0, matrix.GetLength(0))
                     .Select(x => matrix[x, columnNumber])
                     .ToArray();
         }
 
-        public static int[] GetRow(int[,] matrix, int rowNumber)
+        public int[] GetRow(int[,] matrix, int rowNumber)
         {
             return Enumerable.Range(0, matrix.GetLength(1))
                     .Select(x => matrix[rowNumber, x])
                     .ToArray();
         }
 
-        public static bool Compare(int[,] firstMatrix, int[,] secondMatrix)
+        public bool Compare(int[,] firstMatrix, int[,] secondMatrix)
         {
             if (firstMatrix.Length != secondMatrix.Length) return false;
 
@@ -275,7 +267,12 @@ namespace GraphWorker
 
                 foreach (Edge comparerEdge in Edges)
                 {
-                    if (edge.fromNode.Equals(comparerEdge.toNode) && edge.toNode.Equals(comparerEdge.fromNode))
+                    if (edge.fromNode == comparerEdge.toNode && edge.toNode == comparerEdge.fromNode)
+                    {
+                        isMultigraph = true;
+                        break;
+                    }
+                    else if (edge != comparerEdge && edge.fromNode == comparerEdge.fromNode && edge.toNode == comparerEdge.toNode)
                     {
                         isMultigraph = true;
                         break;
@@ -284,7 +281,7 @@ namespace GraphWorker
             }
 
             if (isMultigraph) stringBuilder += "multigraph";
-            else if (Edges.Any(x => x.fromNode.Equals(x.toNode))) stringBuilder += "multigraph";
+            else if (Edges.Any(x => x.fromNode == x.toNode)) stringBuilder += "multigraph";
             else stringBuilder += "graph";
 
             return stringBuilder;
@@ -314,16 +311,42 @@ namespace GraphWorker
 
     public struct Node
     {
-
-        private int ID;
         public int Value;
+        private int ID = 0;
 
         Random rnd = new();
 
         public Node(int value)
         {
             Value = value;
-            ID = rnd.Next(int.MaxValue);
+            ID = rnd.Next(int.MinValue, int.MaxValue);
+        }
+
+        public int GetID()
+        {
+            return ID;
+        }
+
+        public static bool operator ==(Node node0, Node node1)
+        {
+            return node0.GetHashCode() == node1.GetHashCode();
+        }
+
+        public static bool operator !=(Node node0, Node node1)
+        {
+            return node0.GetHashCode() != node1.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Node node &&
+                   Value == node.Value &&
+                   ID == node.GetID();
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Value, ID);
         }
     }
 
@@ -332,17 +355,51 @@ namespace GraphWorker
         public Node fromNode;
         public Node toNode;
         public bool isDirected = false;
+        private int ID = 0;
+
+        Random rnd = new();
 
         public Edge(Node from, Node to, bool directed)
         {
             fromNode = from;
             toNode = to;
             isDirected = directed;
+            ID = rnd.Next(int.MinValue, int.MaxValue);
         }
         public Edge(Node from, Node to)
         {
             fromNode = from;
             toNode = to;
+            ID = rnd.Next(int.MinValue, int.MaxValue);
+        }
+
+        public int GetID()
+        {
+            return ID;
+        }
+
+        public static bool operator ==(Edge edge0, Edge edge1)
+        {
+            return edge0.GetHashCode() == edge1.GetHashCode();
+        }
+
+        public static bool operator !=(Edge edge0, Edge edge1)
+        {
+            return edge0.GetHashCode() != edge1.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Edge edge &&
+                   EqualityComparer<Node>.Default.Equals(fromNode, edge.fromNode) &&
+                   EqualityComparer<Node>.Default.Equals(toNode, edge.toNode) &&
+                   isDirected == edge.isDirected &&
+                   ID == edge.GetID();
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(fromNode, toNode, isDirected, ID);
         }
     }
 }
