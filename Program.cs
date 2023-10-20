@@ -6,6 +6,10 @@
         {
             List<Graph> graphs = new();
 
+            Console.WriteLine(  "##========================================================##\n" +
+                                "## Welcome to GraphWorker v1.0 type help to get more info ##\n" +
+                                "##========================================================##\n");
+
             while (true)
             {
                 string? input = Console.ReadLine();
@@ -15,6 +19,7 @@
                 {
                     case "help": Help(); break;
                     case "exit": return;
+                    case "clear": Console.Clear(); break;
                 }
 
                 string[] inputSplitted = input.Split(' ');
@@ -45,7 +50,9 @@
                     "edges {graphName}\n\t" +
                     "nodes {graphName}\n\t" +
                     "graphType {graphName}\n\t" +
-                    "isIsomophic {graphName} {graphName}\n");
+                    "isIsomorphic {graphName} {graphName}\n" +
+                "clear\tclears the console\n"+
+                "exit\texits program");
         }
 
         private static List<Graph> Add(List<Graph> graphs, string[] input)

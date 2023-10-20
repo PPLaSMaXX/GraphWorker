@@ -4,8 +4,8 @@
     {
         public string Label;
 
-        public List<Node> Nodes = new();
-        public List<Edge> Edges = new();
+        private List<Node> Nodes = new();
+        private List<Edge> Edges = new();
 
         public Graph(string label)
         {
@@ -30,7 +30,6 @@
         {
             if (position >= 0 && position < Nodes.Count)
             {
-
                 List<Edge> edgesToRemove = Edges.FindAll(x => x.fromNode == Nodes[position] || x.toNode == Nodes[position]);
                 foreach (Edge e in edgesToRemove)
                 {
@@ -327,12 +326,12 @@
             return ID;
         }
 
-        public static bool operator ==(Node node0, Node node1)
+        public static bool operator == (Node node0, Node node1)
         {
             return node0.GetHashCode() == node1.GetHashCode();
         }
 
-        public static bool operator !=(Node node0, Node node1)
+        public static bool operator != (Node node0, Node node1)
         {
             return node0.GetHashCode() != node1.GetHashCode();
         }
